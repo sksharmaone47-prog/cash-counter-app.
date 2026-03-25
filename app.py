@@ -5,7 +5,7 @@ from num2words import num2words
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Cash Denomination", page_icon="🏦", layout="centered", menu_items=None)
 
-# Styling for ZERO GAP and NO BUTTONS
+# Styling for ZERO GAP and CLEAN INPUT (No Buttons)
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -13,7 +13,7 @@ st.markdown("""
     header {visibility: hidden;}
     .stApp { background-color: #e8f5e9; }
     
-    /* Remove column padding and gaps completely */
+    /* Strict Column Alignment - No Gaps */
     [data-testid="column"] {
         padding-left: 0px !important;
         padding-right: 0px !important;
@@ -23,20 +23,15 @@ st.markdown("""
         min-width: unset !important;
     }
 
-    /* Remove + and - buttons from number input */
-    button[data-testid="step-up"], button[data-testid="step-down"] {
-        display: none !important;
-    }
-
-    /* Input Box Styling - VERY TIGHT */
+    /* Input Box Styling (Using text_input to avoid +/- buttons) */
     div[data-baseweb="input"] {
-        width: 55px !important;
+        width: 60px !important;
         height: 35px !important;
         background-color: white !important;
         border: 1px solid #999 !important;
         border-radius: 4px !important;
-        margin-left: 5px !important;
-        margin-right: 5px !important;
+        margin-left: 2px !important;
+        margin-right: 2px !important;
     }
     input { 
         text-align: center !important; 
@@ -47,14 +42,14 @@ st.markdown("""
     
     .calc-row { 
         font-family: monospace; 
-        font-size: 18px; 
+        font-size: 19px; 
         font-weight: bold; 
         color: #1b5e20;
-        margin-top: 8px;
-        margin-left: 10px;
+        margin-top: 7px;
+        margin-left: 5px;
     }
     
-    p { margin-bottom: 0px !important; }
+    p { margin-bottom: 0px !important; line-height: 1.2 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -71,36 +66,40 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- ZERO GAP INPUT SECTION ---
+# --- ZERO GAP LAYOUT ---
 for n in notes:
-    # Smallest possible column widths
-    c1, c2, c3, c4, c5 = st.columns([0.4, 0.2, 0.6, 0.2, 1.5])
+    # Tightest possible column layout
+    c1, c2, c3, c4, c5 = st.columns([0.45, 0.2, 0.7, 0.2, 1.8])
     
     with c1:
-        st.markdown(f"<p style='margin-top:8px;'><b>₹{n}</b></p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='margin-top:7px;'><b>₹{n}</b></p>", unsafe_allow_html=True)
     with c2:
-        st.markdown("<p style='margin-top:8px;'><b>x</b></p>", unsafe_allow_html=True)
+        st.markdown("<p style='margin-top:7px;'><b>x</b></p>", unsafe_allow_html=True)
     with c3:
-        # number_input with step-buttons hidden by CSS
-        count = st.number_input(f"qty_{n}", min_value=0, step=1, value=0, key=f"n_{n}", label_visibility="collapsed")
+        # text_input use karne se +/- buttons kabhi nahi aayenge
+        val = st.text_input(f"qty_{n}", value="0", key=f"k_{n}", label_visibility="collapsed")
+        # Ensure only numbers are used
+        count = int(val) if val.isdigit() else 0
         counts[n] = count
     with c4:
-        st.markdown("<p style='margin-top:8px;'><b>=</b></p>", unsafe_allow_html=True)
+        st.markdown("<p style='margin-top:7px;'><b>=</b></p>", unsafe_allow_html=True)
     with c5:
         subtotal = n * count
         totals.append(subtotal)
         st.markdown(f"<p class='calc-row'>{subtotal}</p>", unsafe_allow_html=True)
 
-# Coins Section (No divider)
-cc1, cc2, cc3, cc4, cc5 = st.columns([0.4, 0.2, 0.6, 0.2, 1.5])
+# Coins Row
+st.divider()
+cc1, cc2, cc3, cc4, cc5 = st.columns([0.45, 0.2, 0.7, 0.2, 1.8])
 with cc1:
-    st.markdown("<p style='margin-top:8px;'><b>Coins</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-top:7px;'><b>Coins</b></p>", unsafe_allow_html=True)
 with cc2:
-    pass # Empty for spacing
+    pass
 with cc3:
-    coin_val = st.number_input("coin_v", min_value=0, step=1, value=0, key="coin_input", label_visibility="collapsed")
+    c_val_str = st.text_input("c_v", value="0", key="c_key", label_visibility="collapsed")
+    coin_val = int(c_val_str) if c_val_str.isdigit() else 0
 with cc4:
-    st.markdown("<p style='margin-top:8px;'><b>=</b></p>", unsafe_allow_html=True)
+    st.markdown("<p style='margin-top:7px;'><b>=</b></p>", unsafe_allow_html=True)
 with cc5:
     st.markdown(f"<p class='calc-row'>{coin_val}</p>", unsafe_allow_html=True)
 
@@ -131,7 +130,7 @@ whatsapp_text += f"{words}"
 
 whatsapp_url = f"https://wa.me/?text={whatsapp_text.replace(' ', '%20').replace('\n', '%0A')}"
 
-st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold;">📲 WhatsApp Share</button></a>''', unsafe_allow_html=True)
+st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold;">📲 Share on WhatsApp</button></a>''', unsafe_allow_html=True)
 
-if st.button("🔄 Clear All"):
+if st.button("🔄 Reset App"):
     st.rerun()
