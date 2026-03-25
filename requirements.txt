@@ -1,3 +1,6 @@
 streamlit
 pandas
 num2words
+streamlit
+pandas
+num2words
