@@ -3,9 +3,9 @@ from datetime import date
 from num2words import num2words
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Cash Denomination", page_icon="🏦", layout="centered")
+st.set_page_config(page_title="Cash Denomination", page_icon="🏦", layout="centered", menu_items=None)
 
-# CSS for Strict Single Line & Clean UI
+# CSS for Strict Alignment and Clean UI
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -13,114 +13,99 @@ st.markdown("""
     header {visibility: hidden;}
     .stApp { background-color: #ffffff; }
     
-    /* Input box styling - No borders, just a simple underline */
+    /* Hide +/- Buttons */
+    button[data-testid="step-up"], button[data-testid="step-down"] {
+        display: none !important;
+    }
+    
+    /* Input Box Styling */
     div[data-baseweb="input"] {
-        width: 60px !important;
-        height: 32px !important;
-        background-color: transparent !important;
-        border: none !important;
-        border-bottom: 2px solid #1b5e20 !important;
-        border-radius: 0px !important;
-        margin: 0px !important;
+        width: 70px !important;
+        height: 35px !important;
+        background-color: #f0f2f6 !important;
+        border: 1px solid #ccc !important;
+        margin: 0 5px !important;
     }
     input { 
         text-align: center !important; 
         font-weight: bold !important; 
         font-size: 18px !important;
-        padding: 0px !important;
-    }
-    
-    /* Hide +/- Buttons */
-    button[data-testid="step-up"], button[data-testid="step-down"] {
-        display: none !important;
     }
 
-    /* Column spacing for straight line */
-    [data-testid="column"] {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    /* Fixed Row Alignment */
+    .row-text { font-size: 18px; font-weight: bold; margin-top: 8px; }
+    .result-text { font-size: 18px; font-weight: bold; margin-top: 8px; text-align: right; font-family: monospace; color: #1b5e20; }
     
-    .row-text { font-size: 18px; font-weight: bold; margin: 0; white-space: nowrap; }
-    .total-text { font-size: 18px; font-weight: bold; color: #1b5e20; text-align: right; width: 100%; font-family: monospace; }
+    .header-text { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 5px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- AUTOMATIC DATE & DAY ---
-today = date.today()
-current_day = today.strftime("%A") # Jaise: Monday, Tuesday
-current_date = today.strftime("%d %b %Y")
-
-# Sidebar for Name
+# Sidebar for Settings
 st.sidebar.header("📋 Settings")
 user_name = st.sidebar.text_input("Name:", value="Sandeep")
+report_date = st.sidebar.date_input("Date:", date.today())
 
-# Header Display
-st.markdown(f"<h3 style='text-align: center; margin-bottom: 0;'>Name : {user_name}</h3>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 18px; color: #555;'>{current_day} | {current_date}</p>", unsafe_allow_html=True)
+# --- APP HEADER ---
+st.markdown(f"<p class='header-text'>Name : {user_name}</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='header-text'>Date : {report_date.strftime('%d %b %y')}</p>", unsafe_allow_html=True)
 st.divider()
-
-# Reset functionality using session state
-if 'reset_key' not in st.session_state:
-    st.session_state.reset_key = 0
 
 notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- CALCULATION TABLE ---
+# --- CALCULATION SECTION ---
 for n in notes:
-    c1, c2, c3, c4, c5 = st.columns([1, 0.3, 1, 0.3, 2])
+    # Tight columns for perfect one-line row
+    c1, c2, c3, c4, c5 = st.columns([1, 0.4, 1.2, 0.4, 2])
     
     with c1:
         st.markdown(f"<p class='row-text'>₹{n}</p>", unsafe_allow_html=True)
     with c2:
         st.markdown("<p class='row-text'>x</p>", unsafe_allow_html=True)
     with c3:
-        # text_input with dynamic key for reset
-        val = st.text_input(f"q_{n}", value="0", key=f"n_{n}_{st.session_state.reset_key}", label_visibility="collapsed")
-        count = int(val) if val.isdigit() else 0
+        count = st.number_input(f"n_{n}", min_value=0, step=1, value=0, key=f"key_{n}", label_visibility="collapsed")
         counts[n] = count
     with c4:
         st.markdown("<p class='row-text'>=</p>", unsafe_allow_html=True)
     with c5:
         subtotal = n * count
         totals.append(subtotal)
-        st.markdown(f"<p class='total-text'>{subtotal}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='result-text'>{subtotal}</p>", unsafe_allow_html=True)
 
-# Coins Row
-st.divider()
-cl1, cl2, cl3, cl4, cl5 = st.columns([1, 0.3, 1, 0.3, 2])
-with cl1:
+# --- COINS SECTION (FIXED ALIGNMENT) ---
+# Coins ko Note wali row ke saath align kar diya gaya hai
+cc1, cc2, cc3, cc4, cc5 = st.columns([1, 0.4, 1.2, 0.4, 2])
+with cc1:
     st.markdown("<p class='row-text'>Coins</p>", unsafe_allow_html=True)
-with cl2:
-    st.markdown("<p class='row-text'>+</p>", unsafe_allow_html=True)
-with cl3:
-    c_val_str = st.text_input("cv", value="0", key=f"coin_{st.session_state.reset_key}", label_visibility="collapsed")
-    coin_val = int(c_val_str) if c_val_str.isdigit() else 0
-with cl4:
+with cc2:
+    st.markdown("<p class='row-text'>x</p>", unsafe_allow_html=True)
+with cc3:
+    # Coins ko bhi Notes ki tarah multiplier box diya hai
+    coin_val = st.number_input("coin_v", min_value=0, step=1, value=0, key="coin_k", label_visibility="collapsed")
+with cc4:
     st.markdown("<p class='row-text'>=</p>", unsafe_allow_html=True)
-with cl5:
-    st.markdown(f"<p class='total-text'>{coin_val}</p>", unsafe_allow_html=True)
+with cc5:
+    # Subtotal for coins
+    st.markdown(f"<p class='result-text'>{coin_val}</p>", unsafe_allow_html=True)
 
-# Final Total
+# Final Calculations
 grand_total = sum(totals) + coin_val
+total_items = sum(counts.values())
+
 try:
     words = num2words(grand_total, lang='en_IN').title().replace("-", " ").replace(" And ", " ") + " Only"
 except:
     words = "Zero Only"
 
-# --- SUMMARY ---
+# --- TOTAL SUMMARY ---
 st.markdown("<p style='text-align:center;'>-----------------------------------------</p>", unsafe_allow_html=True)
-st.markdown(f"<h2 style='text-align:center; color: black;'>Total = ₹ {grand_total}</h2>", unsafe_allow_html=True)
+st.markdown(f"<h3 style='text-align:center;'>Total &nbsp;&nbsp;&nbsp; = ₹ &nbsp; {grand_total}</h3>", unsafe_allow_html=True)
 st.markdown(f"<p style='text-align:center; font-weight:bold; font-size:18px;'>{words}</p>", unsafe_allow_html=True)
 
-# --- BUTTONS ---
+# --- WHATSAPP BUTTON ---
 st.divider()
-
-# WhatsApp Share
-whatsapp_text = f"Name : {user_name}\nDay : {current_day}\nDate : {current_date}\n\n"
+whatsapp_text = f"Name : {user_name}\nDate : {report_date.strftime('%d %b %y')}\n\n"
 for n in notes:
     if counts[n] > 0:
         whatsapp_text += f"₹{n:<4} x {counts[n]:<2} = {n*counts[n]:>7}\n"
@@ -131,9 +116,8 @@ whatsapp_text += f"Total      = ₹ {grand_total:>7}\n"
 whatsapp_text += f"{words}"
 
 whatsapp_url = f"https://wa.me/?text={whatsapp_text.replace(' ', '%20').replace('\n', '%0A')}"
-st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:10px; cursor:pointer; font-weight:bold; font-size:18px; margin-bottom:10px;">📲 WhatsApp Share</button></a>''', unsafe_allow_html=True)
 
-# Working Reset Button
-if st.button("🔄 Reset / Clear All", use_container_width=True):
-    st.session_state.reset_key += 1
+st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:18px;">📲 Share on WhatsApp</button></a>''', unsafe_allow_html=True)
+
+if st.button("🔄 Reset App"):
     st.rerun()
