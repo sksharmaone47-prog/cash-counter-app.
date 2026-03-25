@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Professional Green Theme & Strict Row Alignment
+# CSS for ZERO GAP, No Buttons, and Professional Look
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -17,28 +17,26 @@ st.markdown("""
     header {visibility: hidden;}
     .stApp { background-color: #e8f5e9; }
     
+    /* Remove all column gaps completely */
+    [data-testid="column"] {
+        padding: 0px !important;
+        margin: 0px !important;
+        width: fit-content !important;
+        flex: unset !important;
+    }
+
     /* Hide +/- Buttons Always */
     button[data-testid="step-up"], button[data-testid="step-down"] {
         display: none !important;
     }
-    
-    /* Force columns to stay in one line and never wrap */
-    [data-testid="column"] {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        padding: 0px !important;
-        margin: 0px !important;
-        min-width: unset !important;
-        flex: unset !important;
-    }
 
-    /* Tighten Input Box */
+    /* Input Box Styling - VERY TIGHT */
     div[data-baseweb="input"] {
-        width: 65px !important;
+        width: 60px !important;
         height: 35px !important;
         background-color: white !important;
         border: 1px solid #1b5e20 !important;
+        border-radius: 4px !important;
         margin: 0 5px !important;
     }
     input { 
@@ -47,24 +45,33 @@ st.markdown("""
         font-size: 18px !important;
         padding: 0px !important;
     }
-
-    .row-label { font-size: 18px; font-weight: bold; color: #000; margin-top: 10px; width: 55px; }
-    .row-sign { font-size: 18px; font-weight: bold; color: #000; margin-top: 10px; width: 20px; text-align: center; }
-    .row-total { font-size: 19px; font-weight: bold; color: #1b5e20; margin-top: 10px; text-align: right; width: 100px; font-family: monospace; }
+    
+    .calc-text { 
+        font-family: monospace; 
+        font-size: 18px; 
+        font-weight: bold; 
+        color: #1b5e20;
+        margin-top: 8px;
+        margin-left: 10px;
+    }
+    
+    .label-text { font-weight: bold; font-size: 18px; margin-top: 8px; min-width: 50px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- AUTOMATIC DATE & DAY (Fixed) ---
+# --- DYNAMIC DATE & DAY (Auto-Update) ---
+# Ye har baar refresh hone par current time dikhayega
 now = datetime.now()
-auto_day = now.strftime("%A")  # Thursday
-auto_date = now.strftime("%d %b %Y") # 26 Mar 2026
+auto_day = now.strftime("%A") 
+auto_date = now.strftime("%d %b %Y")
 
-# --- SIDEBAR SETTINGS ---
+# --- SETTINGS IN SIDEBAR ---
 with st.sidebar:
-    st.markdown("## 🏦 Cash Denomination")
+    st.markdown("## ⚙️ App Settings")
     st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=80)
     user_name = st.text_input("Entry Name:", value="Sandeep")
-    st.info(f"Today: {auto_day}\n{auto_date}")
+    st.divider()
+    st.info(f"Current Day: {auto_day}\nDate: {auto_date}")
 
 # --- MAIN HEADER ---
 st.title("🏦 Cash Denomination")
@@ -80,40 +87,40 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- CALCULATION SECTION ---
+# --- ZERO GAP CALCULATION SECTION ---
 for n in notes:
-    # 5 Tight columns for perfect portrait spacing
-    c1, c2, c3, c4, c5 = st.columns([1, 0.4, 1.2, 0.4, 2.3])
+    # 5 Very tight columns to bring elements close
+    c1, c2, c3, c4, c5 = st.columns([0.6, 0.3, 1, 0.3, 2])
     
     with c1:
-        st.markdown(f"<p class='row-label'>₹{n}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='label-text'>₹{n}</p>", unsafe_allow_html=True)
     with c2:
-        st.markdown("<p class='row-sign'>x</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-text'>x</p>", unsafe_allow_html=True)
     with c3:
-        # number_input without buttons for best focus and Next key
-        count = st.number_input(f"qty_{n}", min_value=0, step=1, value=0, key=f"k_{n}_{st.session_state.reset_id}", label_visibility="collapsed")
+        # No buttons, placeholder for auto-clear
+        count = st.number_input(f"q_{n}", min_value=0, step=1, value=0, key=f"n_{n}_{st.session_state.reset_id}", label_visibility="collapsed")
         counts[n] = count
     with c4:
-        st.markdown("<p class='row-sign'>=</p>", unsafe_allow_html=True)
+        st.markdown("<p class='label-text'>=</p>", unsafe_allow_html=True)
     with c5:
         subtotal = n * count
         totals.append(subtotal)
-        st.markdown(f"<p class='row-total'>{subtotal}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='calc-text'>{subtotal}</p>", unsafe_allow_html=True)
 
-# Coins Row (Fixed alignment)
-cc1, cc2, cc3, cc4, cc5 = st.columns([1, 0.4, 1.2, 0.4, 2.3])
+# Coins Row (No Divider between 10 and Coins)
+cc1, cc2, cc3, cc4, cc5 = st.columns([0.6, 0.3, 1, 0.3, 2])
 with cc1:
-    st.markdown("<p class='row-label'>Coins</p>", unsafe_allow_html=True)
+    st.markdown("<p class='label-text'>Coins</p>", unsafe_allow_html=True)
 with cc2:
-    st.markdown("<p class='row-sign'>+</p>", unsafe_allow_html=True)
+    st.markdown("<p class='label-text'>+</p>", unsafe_allow_html=True)
 with cc3:
-    coin_val = st.number_input("cv", min_value=0, step=1, value=0, key=f"c_{st.session_state.reset_id}", label_visibility="collapsed")
+    coin_val = st.number_input("c_v", min_value=0, step=1, value=0, key=f"c_{st.session_state.reset_id}", label_visibility="collapsed")
 with cc4:
-    st.markdown("<p class='row-sign'>=</p>", unsafe_allow_html=True)
+    st.markdown("<p class='label-text'>=</p>", unsafe_allow_html=True)
 with cc5:
-    st.markdown(f"<p class='row-total'>{coin_val}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='calc-text'>{coin_val}</p>", unsafe_allow_html=True)
 
-# Final Total Calculation
+# Calculations
 grand_total = sum(totals) + coin_val
 try:
     words = num2words(grand_total, lang='en_IN').title().replace("-", " ").replace(" And ", " ") + " Only"
@@ -123,12 +130,9 @@ except:
 # --- SUMMARY ---
 st.divider()
 st.markdown(f"<h2 style='text-align: center; color: #1b5e20;'>Total = ₹ {grand_total}</h2>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 18px; color: #000;'>{words}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 18px;'>{words}</p>", unsafe_allow_html=True)
 
-# --- ACTION BUTTONS ---
-st.divider()
-
-# WhatsApp Share
+# --- WHATSAPP ---
 whatsapp_msg = f"*Cash Denomination*\nName: {user_name}\nDay: {auto_day}\nDate: {auto_date}\n\n"
 for n in notes:
     if counts[n] > 0:
@@ -142,7 +146,7 @@ whatsapp_msg += f"{words}"
 wa_url = f"https://wa.me/?text={whatsapp_msg.replace(' ', '%20').replace('\n', '%0A')}"
 st.markdown(f'''<a href="{wa_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:18px;">📲 WhatsApp Share</button></a>''', unsafe_allow_html=True)
 
-# Reset Button
-if st.button("🔄 Clear / Reset App", use_container_width=True):
+if st.button("🔄 Clear All", use_container_width=True):
     st.session_state.reset_id += 1
     st.rerun()
+    
