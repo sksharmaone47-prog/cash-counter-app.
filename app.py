@@ -78,13 +78,13 @@ for n in notes:
         with col5:
             subtotal = n * count
             totals.append(subtotal)
-            st.markdown(f"<p style='margin-top:8px; font-family:monospace; text-align:right;'><b>{subtotal}</b></p>", unsafe_allow_html=True)
+            st.markdown(f"<pr style='margin-top:5px; font-family:monospace; text-align:right;'><b>{subtotal}</b></p>", unsafe_allow_html=True)
 
-# --- COINS SECTION (No Divider between 10 and Coins) ---
+# --- COINS SECTION (No Divider between 10 and Coins)
 row_coin = st.container()
 with row_coin:
-    c1, c2, c3, c4, c5 = st.columns([1, 0.4, 1.2, 0.4, 2])
-    with c1:
+    c1,c2,c3,c4,c5 = st.columns([1,0.4,1.2,0.4,2])
+   with c1:
         st.markdown("<p style='margin-top:8px;'><b>Coins</b></p>", unsafe_allow_html=True)
     with col2: # spacing
         pass
