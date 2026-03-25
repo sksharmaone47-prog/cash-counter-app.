@@ -5,7 +5,7 @@ from num2words import num2words
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Cash Denomination", page_icon="🏦", layout="centered", menu_items=None)
 
-# Styling for tightest alignment and fast focus
+# Styling for ZERO GAP and NO BUTTONS
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -13,36 +13,48 @@ st.markdown("""
     header {visibility: hidden;}
     .stApp { background-color: #e8f5e9; }
     
-    /* Remove all column padding to bring elements closer */
+    /* Remove column padding and gaps completely */
     [data-testid="column"] {
-        padding: 0px !important;
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+        margin-left: 0px !important;
+        margin-right: 0px !important;
         flex: unset !important;
         min-width: unset !important;
-        margin-right: 5px !important;
     }
 
-    /* Small Input Box */
+    /* Remove + and - buttons from number input */
+    button[data-testid="step-up"], button[data-testid="step-down"] {
+        display: none !important;
+    }
+
+    /* Input Box Styling - VERY TIGHT */
     div[data-baseweb="input"] {
-        width: 60px !important;
+        width: 55px !important;
         height: 35px !important;
         background-color: white !important;
         border: 1px solid #999 !important;
+        border-radius: 4px !important;
+        margin-left: 5px !important;
+        margin-right: 5px !important;
     }
     input { 
         text-align: center !important; 
         font-weight: bold !important; 
-        font-size: 16px !important;
-        padding: 2px !important;
+        font-size: 18px !important;
+        padding: 0px !important;
     }
     
     .calc-row { 
         font-family: monospace; 
-        font-size: 17px; 
+        font-size: 18px; 
         font-weight: bold; 
         color: #1b5e20;
         margin-top: 8px;
-        white-space: nowrap;
+        margin-left: 10px;
     }
+    
+    p { margin-bottom: 0px !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -59,17 +71,17 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- TIGHT INPUT SECTION ---
-for i, n in enumerate(notes):
-    # Widths are now very small to keep them close
-    c1, c2, c3, c4, c5 = st.columns([0.6, 0.2, 0.8, 0.2, 1.5])
+# --- ZERO GAP INPUT SECTION ---
+for n in notes:
+    # Smallest possible column widths
+    c1, c2, c3, c4, c5 = st.columns([0.4, 0.2, 0.6, 0.2, 1.5])
     
     with c1:
         st.markdown(f"<p style='margin-top:8px;'><b>₹{n}</b></p>", unsafe_allow_html=True)
     with c2:
         st.markdown("<p style='margin-top:8px;'><b>x</b></p>", unsafe_allow_html=True)
     with c3:
-        # Changed to number_input with key for better 'Next' button support on mobile
+        # number_input with step-buttons hidden by CSS
         count = st.number_input(f"qty_{n}", min_value=0, step=1, value=0, key=f"n_{n}", label_visibility="collapsed")
         counts[n] = count
     with c4:
@@ -79,14 +91,18 @@ for i, n in enumerate(notes):
         totals.append(subtotal)
         st.markdown(f"<p class='calc-row'>{subtotal}</p>", unsafe_allow_html=True)
 
-# Coins Row (No Divider)
-cc1, cc2, cc3 = st.columns([1, 1, 2])
+# Coins Section (No divider)
+cc1, cc2, cc3, cc4, cc5 = st.columns([0.4, 0.2, 0.6, 0.2, 1.5])
 with cc1:
     st.markdown("<p style='margin-top:8px;'><b>Coins</b></p>", unsafe_allow_html=True)
 with cc2:
-    coin_val = st.number_input("coin_v", min_value=0, step=1, value=0, key="coin_input", label_visibility="collapsed")
+    pass # Empty for spacing
 with cc3:
-    st.markdown(f"<p class='calc-row'>= {coin_val}</p>", unsafe_allow_html=True)
+    coin_val = st.number_input("coin_v", min_value=0, step=1, value=0, key="coin_input", label_visibility="collapsed")
+with cc4:
+    st.markdown("<p style='margin-top:8px;'><b>=</b></p>", unsafe_allow_html=True)
+with cc5:
+    st.markdown(f"<p class='calc-row'>{coin_val}</p>", unsafe_allow_html=True)
 
 # Calculations
 grand_total = sum(totals) + coin_val
