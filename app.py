@@ -50,16 +50,13 @@ default_date = datetime.now(IST)
 
 with st.sidebar:
     st.markdown("## ⚙️ App Settings")
-    st.write("Yahan se Name aur Date badlein:")
-    # Name Change Option
     user_name = st.text_input("Edit Name:", value="Sandeep")
-    # Date Change Option
     selected_date = st.date_input("Edit Date:", value=default_date)
     
     display_day = selected_date.strftime("%A")
     display_date = selected_date.strftime("%d %b %Y")
     st.divider()
-    st.success(f"Setting Saved!\n{display_day}\n{display_date}")
+    st.success(f"Settings Active:\n{display_day}\n{display_date}")
 
 # --- MAIN HEADER ---
 st.title("🏦 Cash Denomination")
@@ -108,9 +105,26 @@ st.divider()
 st.markdown(f"<h2 style='text-align: center; color: #1b5e20;'>Total = ₹ {grand_total}</h2>", unsafe_allow_html=True)
 st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 18px;'>{words}</p>", unsafe_allow_html=True)
 
-# WhatsApp Share
+# --- REPORT GENERATION ---
+report_text = f"--- CASH DENOMINATION REPORT ---\n"
+report_text += f"Name: {user_name}\n"
+report_text += f"Date: {display_date} ({display_day})\n"
+report_text += f"--------------------------------\n"
+for n in notes:
+    if counts[n] > 0:
+        report_text += f"₹{n:<4} x {counts[n]:<3} = {n*counts[n]:>10}\n"
+if coin_val > 0:
+    report_text += f"Coins      = {coin_val:>10}\n"
+report_text += f"--------------------------------\n"
+report_text += f"GRAND TOTAL: ₹ {grand_total}\n"
+report_text += f"In Words: {words}\n"
+report_text += f"--------------------------------"
+
+# --- ACTION BUTTONS ---
 st.divider()
-whatsapp_msg = f"*Cash Denomination*\nName: {user_name}\nDay: {display_day}\nDate: {display_date}\n\n"
+
+# 1. WhatsApp Share
+whatsapp_msg = f"*Cash Denomination Report*\nName: {user_name}\nDate: {display_date}\n\n"
 for n in notes:
     if counts[n] > 0:
         whatsapp_msg += f"₹{n:<4} x {counts[n]:<2} = {n*counts[n]:>7}\n"
@@ -121,8 +135,20 @@ whatsapp_msg += f"Total      = ₹ {grand_total:>7}\n"
 whatsapp_msg += f"{words}"
 
 wa_url = f"https://wa.me/?text={whatsapp_msg.replace(' ', '%20').replace('\n', '%0A')}"
-st.markdown(f'''<a href="{wa_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:18px;">📲 WhatsApp Share</button></a>''', unsafe_allow_html=True)
+st.markdown(f'''<a href="{wa_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:18px; margin-bottom:10px;">📲 Share on WhatsApp</button></a>''', unsafe_allow_html=True)
 
+# 2. Download Link (Text File)
+st.download_button(
+    label="📥 Download Report (.txt)",
+    data=report_text,
+    file_name=f"Cash_Report_{display_date.replace(' ', '_')}.txt",
+    mime="text/plain",
+    use_container_width=True
+)
+
+# 3. Reset Button
+st.write("") # Padding
 if st.button("🔄 Clear All", use_container_width=True):
     st.session_state.rid += 1
     st.rerun()
+    
