@@ -5,11 +5,12 @@ from num2words import num2words
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Cash Counter Pro", page_icon="🏦")
 
-# Styling for perfect alignment
+# Styling for perfect vertical alignment
 st.markdown("""
     <style>
     .stApp { background-color: #e8f5e9; }
     .bold-text { font-size: 22px !important; font-weight: bold !important; color: #000000; }
+    /* Monospace for perfect column alignment */
     .calc-row { 
         font-family: 'Courier New', Courier, monospace; 
         font-size: 20px; 
@@ -18,17 +19,18 @@ st.markdown("""
         white-space: pre;
     }
     input { font-size: 18px !important; font-weight: bold !important; }
+    .gap-line { margin-top: 20px; margin-bottom: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
 st.title("🏦 Cash Counter Pro")
 
-# Sidebar Settings
+# Sidebar
 st.sidebar.header("📋 Settings")
 user_name = st.sidebar.text_input("Entry Name:", value="Sandeep")
 report_date = st.sidebar.date_input("Date:", date.today())
 
-# Header BOLD
+# Header
 st.markdown(f'<p class="bold-text">Entry Name : {user_name}</p>', unsafe_allow_html=True)
 st.markdown(f'<p class="bold-text">Date : {report_date.strftime("%a, %d %b %Y")}</p>', unsafe_allow_html=True)
 
@@ -40,7 +42,7 @@ totals = []
 
 st.subheader("Enter Quantities")
 
-# --- INPUT SECTION (Perfect Alignment) ---
+# --- ALIGNED INPUT SECTION ---
 for n in notes:
     col1, col2, col3 = st.columns([1.5, 2, 3])
     with col1:
@@ -51,10 +53,10 @@ for n in notes:
     with col3:
         subtotal = n * count
         totals.append(subtotal)
-        # Right aligned numbers
+        # Right aligned numbers with '=' in a fixed position
         st.markdown(f'<p class="calc-row"> x {count:<2} = {subtotal:>7}</p>', unsafe_allow_html=True)
 
-# Coins Section
+# Coins
 st.divider()
 c_col1, c_col2 = st.columns([3.5, 3])
 with c_col1:
@@ -67,28 +69,33 @@ grand_total = sum(totals) + coin_val
 total_items = sum(counts.values())
 
 try:
-    # Adding extra space between words for clarity
-    raw_words = num2words(grand_total, lang='en_IN').title().replace("-", " ")
-    words_hi = "   ".join(raw_words.split()) + "   Only"
+    # 'And' hatakar normal spacing
+    words_hi = num2words(grand_total, lang='en_IN').title().replace("-", " ").replace(" And ", " ") + " Only"
 except:
-    words_hi = "Zero   Only"
+    words_hi = "Zero Only"
 
-# --- SUMMARY SECTION (With extra lines) ---
+# --- SUMMARY SECTION (With Gap and Lines) ---
 st.divider()
 st.markdown(f'<p class="calc-row">------------------------------</p>', unsafe_allow_html=True)
 st.markdown(f'<p class="bold-text">Total      = ₹ {grand_total}</p>', unsafe_allow_html=True)
 st.markdown(f'<p class="calc-row">------------------------------</p>', unsafe_allow_html=True)
+
+# Adding gap between Total line and Hindi words
+st.markdown('<div class="gap-line"></div>', unsafe_allow_html=True)
+
 st.write(f"**{words_hi}**")
 st.write(f"**Total {total_items} Notes / Coins**")
 
-# --- WHATSAPP TEXT (Aligned & Spaced) ---
+# --- WHATSAPP TEXT (Perfect Straight Alignment) ---
 st.divider()
 
+# WhatsApp logic for straight vertical lines
 whatsapp_text = f"Entry Name : {user_name}\n"
 whatsapp_text += f"Date : {report_date.strftime('%a, %d %b %Y')}\n\n"
 
 for n in notes:
     if counts[n] > 0:
+        # alignment logic (Right align subtotal)
         whatsapp_text += f"₹{n:<4} x {counts[n]:<2} = {n*counts[n]:>7}\n"
 
 if coin_val > 0:
@@ -96,7 +103,7 @@ if coin_val > 0:
 
 whatsapp_text += "------------------------------\n"
 whatsapp_text += f"Total      = ₹ {grand_total:>7}\n"
-whatsapp_text += "------------------------------\n"
+whatsapp_text += "------------------------------\n\n" # Double enter for gap
 whatsapp_text += f"{words_hi}\n"
 whatsapp_text += f"Total {total_items} Notes / Coins"
 
