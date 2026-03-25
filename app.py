@@ -126,3 +126,4 @@ st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:10
 
 if st.button("🔄 Clear All"):
     st.rerun()
+    
