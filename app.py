@@ -1,4 +1,5 @@
 import streamlit as st
+from datetime import datetime
 from num2words import num2words
 
 # --- PAGE CONFIG ---
@@ -8,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# CSS for ZERO GAP, No Buttons, and No Date Display
+# CSS for ZERO GAP, No Buttons, and Clean Layout
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -58,17 +59,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# --- AUTOMATIC DATE & DAY ---
+# Ye har roz apne aap change hogi
+now = datetime.now()
+auto_day = now.strftime("%A") 
+auto_date = now.strftime("%d %b %Y")
+
 # --- SETTINGS IN SIDEBAR ---
 with st.sidebar:
     st.markdown("## ⚙️ App Settings")
     st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=80)
     user_name = st.text_input("Entry Name:", value="Sandeep")
     st.divider()
-    st.info("Date & Day are now hidden from the main screen.")
+    st.info(f"Today is: {auto_day}\n{auto_date}")
 
 # --- MAIN HEADER ---
 st.title("🏦 Cash Denomination")
-st.markdown(f"<h3 style='text-align: center; color: #000;'>Name : {user_name}</h3>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-size: 20px; font-weight: bold; color: #000; margin-bottom:0;'>Name : {user_name}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-size: 18px; font-weight: bold; color: #1b5e20;'>{auto_day} | {auto_date}</p>", unsafe_allow_html=True)
 st.divider()
 
 # Reset state
@@ -81,7 +89,6 @@ totals = []
 
 # --- ZERO GAP CALCULATION SECTION ---
 for n in notes:
-    # 5 Very tight columns to bring elements close
     c1, c2, c3, c4, c5 = st.columns([0.6, 0.3, 1, 0.3, 2])
     
     with c1:
@@ -89,7 +96,6 @@ for n in notes:
     with c2:
         st.markdown("<p class='label-text'>x</p>", unsafe_allow_html=True)
     with c3:
-        # number_input without buttons for best focus and Next key
         count = st.number_input(f"q_{n}", min_value=0, step=1, value=0, key=f"n_{n}_{st.session_state.reset_id}", label_visibility="collapsed")
         counts[n] = count
     with c4:
@@ -113,4 +119,34 @@ with cc5:
     st.markdown(f"<p class='calc-text'>{coin_val}</p>", unsafe_allow_html=True)
 
 # Calculations
-grand_total = sum
+grand_total = sum(totals) + coin_val
+try:
+    words = num2words(grand_total, lang='en_IN').title().replace("-", " ").replace(" And ", " ") + " Only"
+except:
+    words = "Zero Only"
+
+# --- SUMMARY ---
+st.divider()
+st.markdown(f"<h2 style='text-align: center; color: #1b5e20;'>Total = ₹ {grand_total}</h2>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 18px;'>{words}</p>", unsafe_allow_html=True)
+
+# --- ACTION BUTTONS ---
+st.divider()
+
+# WhatsApp Share Message
+whatsapp_msg = f"*Cash Denomination*\nName: {user_name}\nDay: {auto_day}\nDate: {auto_date}\n\n"
+for n in notes:
+    if counts[n] > 0:
+        whatsapp_msg += f"₹{n:<4} x {counts[n]:<2} = {n*counts[n]:>7}\n"
+if coin_val > 0:
+    whatsapp_msg += f"Coins      = {coin_val:>7}\n"
+whatsapp_msg += "------------------------------\n"
+whatsapp_msg += f"Total      = ₹ {grand_total:>7}\n"
+whatsapp_msg += f"{words}"
+
+wa_url = f"https://wa.me/?text={whatsapp_msg.replace(' ', '%20').replace('\n', '%0A')}"
+st.markdown(f'''<a href="{wa_url}" target="_blank"><button style="width:100%; background-color:#25D366; color:white; border:none; padding:15px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:18px;">📲 WhatsApp Share</button></a>''', unsafe_allow_html=True)
+
+if st.button("🔄 Clear All", use_container_width=True):
+    st.session_state.reset_id += 1
+    st.rerun()
