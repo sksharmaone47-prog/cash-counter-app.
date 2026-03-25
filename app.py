@@ -10,7 +10,7 @@ st.markdown("""
     <style>
     .stApp { background-color: #e8f5e9; }
     .bold-text { font-size: 22px !important; font-weight: bold !important; color: #000000; }
-    /* Monospace font for perfect straight alignment */
+    /* Monospace font for straight number alignment like a calculator */
     .calc-row { 
         font-family: 'Courier New', Courier, monospace; 
         font-size: 20px; 
@@ -19,14 +19,10 @@ st.markdown("""
         white-space: pre;
     }
     input { font-size: 18px !important; font-weight: bold !important; }
-    .logo-img { display: block; margin-left: auto; margin-right: auto; width: 100px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- LOGO SECTION ---
-# Aapka bataya hua Bank Logo
-st.markdown('<img src="https://raw.githubusercontent.com/sksharmaone47-prog/cash-counter-app/main/logo.png" class="logo-img">', unsafe_allow_html=True)
-st.markdown("<h1 style='text-align: center;'>Cash Counter Pro</h1>", unsafe_allow_html=True)
+st.title("🏦 Cash Counter Pro")
 
 # Sidebar Settings
 st.sidebar.header("📋 Settings")
@@ -54,16 +50,16 @@ for n in notes:
     with col3:
         subtotal = n * count
         totals.append(subtotal)
-        # Perfect spacing for straight '=' line
-        st.markdown(f'<p class="calc-row"> x {count:<2} = ₹{subtotal:>5}/-</p>', unsafe_allow_html=True)
+        # Yahan spacing di hai taki numbers ek ke niche ek rahein (Alignment)
+        st.markdown(f'<p class="calc-row"> x {count:<2} =  {subtotal:>6}</p>', unsafe_allow_html=True)
 
-# Coins Section (Fixed Alignment)
+# Coins Section
 st.divider()
 c_col1, c_col2 = st.columns([3.5, 3])
 with c_col1:
     coin_val = st.number_input("Coins Value (₹)", min_value=0, step=1, value=0)
 with c_col2:
-    st.markdown(f'<p class="calc-row">Coins   = ₹{coin_val:>5}/-</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="calc-row">Coins   =  {coin_val:>6}</p>', unsafe_allow_html=True)
 
 # Calculations
 grand_total = sum(totals) + coin_val
@@ -76,11 +72,12 @@ except:
 
 # --- SUMMARY ---
 st.divider()
-st.markdown(f'<p class="bold-text">Total      = ₹{grand_total}/-</p>', unsafe_allow_html=True)
+st.markdown(f'<p class="calc-row">----------------------------</p>', unsafe_allow_html=True)
+st.markdown(f'<p class="bold-text">Total      = ₹ {grand_total}</p>', unsafe_allow_html=True)
 st.write(f"**{words}**")
 st.write(f"**Total {total_items} Notes / Coins**")
 
-# --- WHATSAPP TEXT (Aligned) ---
+# --- WHATSAPP TEXT (Exact Layout as requested) ---
 st.divider()
 
 whatsapp_text = f"Entry Name : {user_name}\n"
@@ -88,14 +85,14 @@ whatsapp_text += f"Date : {report_date.strftime('%a, %d %b %Y')}\n\n"
 
 for n in notes:
     if counts[n] > 0:
-        # padding added for straight lines on WhatsApp
-        whatsapp_text += f"₹{n:<4} x {counts[n]:<2} = ₹ {n*counts[n]:>5}/-\n"
+        # alignment logic for WhatsApp text
+        whatsapp_text += f"₹{n:<4} x {counts[n]:<2} =  {n*counts[n]:>6}\n"
 
 if coin_val > 0:
-    whatsapp_text += f"Coins      = ₹ {coin_val:>5}/-\n"
+    whatsapp_text += f"Coins      =  {coin_val:>6}\n"
 
-whatsapp_text += "--------------------------------\n"
-whatsapp_text += f"Total      = ₹ {grand_total:>5}/-\n"
+whatsapp_text += "----------------------------\n"
+whatsapp_text += f"Total      = ₹ {grand_total:>6}\n"
 whatsapp_text += f"{words}\n"
 whatsapp_text += f"Total {total_items} Notes / Coins"
 
@@ -108,3 +105,6 @@ st.markdown(f'''
         </button>
     </a>
 ''', unsafe_allow_html=True)
+
+if st.button("🔄 Reset App"):
+    st.rerun()
