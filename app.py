@@ -5,7 +5,7 @@ from num2words import num2words
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Cash Denomination", page_icon="🏦", layout="centered", menu_items=None)
 
-# CSS for Strict Single Line & Hide Buttons
+# CSS for Strict Single Line & Professional Green Theme
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
@@ -13,26 +13,18 @@ st.markdown("""
     header {visibility: hidden;}
     .stApp { background-color: #e8f5e9; }
     
-    /* Hide +/- Buttons */
+    /* Hide +/- Buttons Always */
     button[data-testid="step-up"], button[data-testid="step-down"] {
         display: none !important;
     }
     
-    /* Force Columns to stay tight and not wrap */
-    [data-testid="column"] {
-        padding: 0px !important;
-        margin: 0px !important;
-        width: fit-content !important;
-        flex: unset !important;
-    }
-
-    /* Input Box size */
+    /* Custom Styling for the input box inside our custom row */
     div[data-baseweb="input"] {
-        width: 75px !important;
-        height: 38px !important;
+        width: 80px !important;
+        height: 40px !important;
         background-color: white !important;
         border: 1px solid #999 !important;
-        margin: 0 5px !important;
+        margin: 0px 5px !important;
     }
     input { 
         text-align: center !important; 
@@ -40,12 +32,18 @@ st.markdown("""
         font-size: 18px !important;
     }
 
-    .row-text {
-        font-weight: bold;
-        font-size: 18px;
-        margin-top: 8px;
-        white-space: nowrap;
+    /* Professional Alignment for the whole row */
+    .row-flex {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 12px;
+        width: 100%;
     }
+    .text-bold { font-weight: bold; font-size: 18px; color: black; min-width: 55px; }
+    .sign-bold { font-weight: bold; font-size: 18px; color: black; margin: 0 5px; }
+    .total-bold { font-weight: bold; font-size: 19px; color: #1b5e20; font-family: monospace; text-align: right; flex-grow: 1; margin-right: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -62,38 +60,33 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- FIXED SINGLE LINE LAYOUT ---
+# --- NEW STABLE LAYOUT ---
 for n in notes:
-    # Manual row with very tight columns
-    c1, c2, c3, c4, c5 = st.columns([0.5, 0.2, 0.8, 0.2, 1.5])
-    
-    with c1:
-        st.markdown(f"<p class='row-text'>₹{n}</p>", unsafe_allow_html=True)
-    with c2:
-        st.markdown("<p class='row-text'>x</p>", unsafe_allow_html=True)
-    with c3:
-        # number_input used for 'Enter/Next' key support
-        count = st.number_input(f"n_{n}", min_value=0, step=1, value=0, key=f"key_{n}", label_visibility="collapsed")
-        counts[n] = count
-    with c4:
-        st.markdown("<p class='row-text'>=</p>", unsafe_allow_html=True)
-    with c5:
-        subtotal = n * count
-        totals.append(subtotal)
-        st.markdown(f"<p class='row-text' style='color:#1b5e20; padding-left:10px;'>{subtotal}</p>", unsafe_allow_html=True)
+    # We use a container but put everything in a Flex Row via CSS
+    with st.container():
+        # Using 3 columns but with FIXED widths via flex-basis
+        c1, c2, c3 = st.columns([1, 1, 2])
+        
+        with c1:
+            st.markdown(f"<p class='text-bold' style='margin-top:8px;'>₹{n} &nbsp; x</p>", unsafe_allow_html=True)
+        with c2:
+            # count input
+            count = st.number_input(f"n_{n}", min_value=0, step=1, value=0, key=f"key_{n}", label_visibility="collapsed")
+            counts[n] = count
+        with c3:
+            subtotal = n * count
+            totals.append(subtotal)
+            st.markdown(f"<p class='total-bold' style='margin-top:8px;'>= &nbsp; {subtotal}</p>", unsafe_allow_html=True)
 
-# Coins Row (No Divider)
-cc1, cc2, cc3, cc4, cc5 = st.columns([0.5, 0.2, 0.8, 0.2, 1.5])
-with cc1:
-    st.markdown("<p class='row-text'>Coins</p>", unsafe_allow_html=True)
-with cc2:
-    pass
-with cc3:
-    coin_val = st.number_input("c_input", min_value=0, step=1, value=0, key="coin_k", label_visibility="collapsed")
-with cc4:
-    st.markdown("<p class='row-text'>=</p>", unsafe_allow_html=True)
-with cc5:
-    st.markdown(f"<p class='row-text' style='color:#1b5e20; padding-left:10px;'>{coin_val}</p>", unsafe_allow_html=True)
+# Coins Section (Line removed between 10 and Coins)
+with st.container():
+    cc1, cc2, cc3 = st.columns([1, 1, 2])
+    with cc1:
+        st.markdown("<p class='text-bold' style='margin-top:8px;'>Coins</p>", unsafe_allow_html=True)
+    with cc2:
+        coin_val = st.number_input("c_input", min_value=0, step=1, value=0, key="coin_k", label_visibility="collapsed")
+    with cc3:
+        st.markdown(f"<p class='total-bold' style='margin-top:8px;'>= &nbsp; {coin_val}</p>", unsafe_allow_html=True)
 
 # Calculations
 grand_total = sum(totals) + coin_val
@@ -126,4 +119,3 @@ st.markdown(f'''<a href="{whatsapp_url}" target="_blank"><button style="width:10
 
 if st.button("🔄 Clear All"):
     st.rerun()
-    
