@@ -1,102 +1,63 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cash Tracker Pro</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-        label { font-weight: bold; width: 100px; }
-        input { padding: 8px; border: 1px solid #ccc; border-radius: 5px; width: 120px; text-align: center; font-size: 16px; }
-        .total-section { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: center; }
-        #grandTotal { font-size: 24px; font-weight: bold; color: #2e7d32; }
-        .btn-whatsapp { background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 18px; cursor: pointer; margin-top: 15px; font-weight: bold; }
-        .header-inputs { margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .header-inputs input { width: 100%; box-sizing: border-box; margin-top: 5px; text-align: left; }
-    </style>
-</head>
-<body>
+import streamlit as st
+import urllib.parse
+from datetime import date
 
-<div class="card">
-    <h2>🏦 Cash Counter</h2>
-    
-    <div class="header-inputs">
-        <label>Name:</label>
-        <input type="text" id="userName" value="Sandeep">
-        <label style="display:block; margin-top:10px;">Date:</label>
-        <input type="text" id="currDate" value="26-03-2026">
-    </div>
+# Page ki setting
+st.set_page_config(page_title="Cash Counter", page_icon="🏦")
 
-    <div id="notesContainer">
-        </div>
+st.title("🏦 Cash Denomination Counter")
 
-    <div class="input-group" style="border-top: 1px solid #eee; padding-top: 10px;">
-        <label>🪙 Coins (Total Value):</label>
-        <input type="number" id="coinInput" placeholder="Total Rs" oninput="calculate()">
-    </div>
+# 1. Name aur Date change ka option
+col_h1, col_h2 = st.columns(2)
+with col_h1:
+    user_name = st.text_input("Name", value="Sandeep")
+with col_h2:
+    user_date = st.text_input("Date", value=date.today().strftime("%d-%m-%Y"))
 
-    <div class="total-section">
-        <div>GRAND TOTAL</div>
-        <div id="grandTotal">₹ 0</div>
-    </div>
+st.markdown("---")
 
-    <button class="btn-whatsapp" onclick="shareWhatsApp()">📲 Share on WhatsApp</button>
-</div>
+# Notes list
+notes = [2000, 500, 200, 100, 50, 20, 10]
+data = {}
+grand_total = 0
 
-<script>
-    const notes = [2000, 500, 200, 100, 50, 20, 10];
-    const container = document.getElementById('notesContainer');
+# UI layout for Notes
+st.subheader("💵 Notes Quantity")
+for note in notes:
+    qty = st.number_input(f"₹ {note} Note", min_value=0, step=1, key=f"note_{note}")
+    if qty > 0:
+        amt = note * qty
+        data[note] = {"qty": qty, "amt": amt}
+        grand_total += amt
 
-    // Create Note Rows
-    notes.forEach(val => {
-        container.innerHTML += `
-            <div class="input-group">
-                <label>₹ ${val} Note:</label>
-                <input type="number" class="note-qty" data-val="${val}" placeholder="Qty" oninput="calculate()">
-            </div>
-        `;
-    });
+st.markdown("---")
 
-    function calculate() {
-        let total = 0;
-        document.querySelectorAll('.note-qty').forEach(input => {
-            let val = parseInt(input.getAttribute('data-val'));
-            let qty = parseInt(input.value) || 0;
-            total += val * qty;
-        });
+# Coins Section
+st.subheader("🪙 Coins")
+coins_total = st.number_input("Sari Coins ka Total Amount bharein", min_value=0, step=1)
+grand_total += coins_total
 
-        let coins = parseInt(document.getElementById('coinInput').value) || 0;
-        total += coins;
+# Grand Total Display
+st.markdown(f"## 💰 Grand Total: ₹ {grand_total:,}")
 
-        document.getElementById('grandTotal').innerText = "₹ " + total.toLocaleString('en-IN');
-        return total;
-    }
+# WhatsApp Report Taiyar Karna
+report_text = f"🏦 *CASH REPORT*\n👤 *Name:* {user_name}\n📅 *Date:* {user_date}\n\n"
+for n, details in data.items():
+    report_text += f"💵 ₹{n} x {details['qty']} = ₹{details['amt']}\n"
 
-    function shareWhatsApp() {
-        let name = document.getElementById('userName').value;
-        let date = document.getElementById('currDate').value;
-        let total = calculate();
-        
-        let text = `🏦 *CASH REPORT*\n👤 *Name:* ${name}\n📅 *Date:* ${date}\n\n`;
-        
-        document.querySelectorAll('.note-qty').forEach(input => {
-            let val = input.getAttribute('data-val');
-            let qty = input.value;
-            if(qty > 0) text += `💵 ₹${val} x ${qty} = ₹${val * qty}\n`;
-        });
+if coins_total > 0:
+    report_text += f"🪙 Coins Total = ₹{coins_total}\n"
 
-        let coins = document.getElementById('coinInput').value;
-        if(coins > 0) text += `🪙 Coins Total = ₹${coins}\n`;
+report_text += f"\n*GRAND TOTAL: ₹{grand_total}*"
 
-        text += `\n💰 *GRAND TOTAL: ₹${total}*`;
-        
-        let url = "https://wa.me/?text=" + encodeURIComponent(text);
-        window.open(url, '_blank');
-    }
-</script>
+# WhatsApp Button
+encoded_text = urllib.parse.quote(report_text)
+whatsapp_url = f"https://wa.me/?text={encoded_text}"
 
-</body>
-</html>
+st.markdown(f'''
+    <a href="{whatsapp_url}" target="_blank">
+        <button style="width:100%; background-color:#25D366; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; font-size:18px; cursor:pointer;">
+            📲 Share on WhatsApp
+        </button>
+    </a>
+    ''', unsafe_allow_html=True)
