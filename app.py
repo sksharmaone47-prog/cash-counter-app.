@@ -52,22 +52,26 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- LIVE DATE & SETTINGS ---
+# --- SETTINGS SECTION (Sidebar) ---
 IST = pytz.timezone('Asia/Kolkata')
-now = datetime.now(IST)
-auto_day = now.strftime("%A") 
-auto_date = now.strftime("%d %b %Y")
+default_now = datetime.now(IST)
 
 with st.sidebar:
-    st.markdown("## ⚙️ Settings")
-    user_name = st.text_input("Name:", value="Sandeep")
+    st.markdown("## ⚙️ App Settings")
+    # Editable Name
+    user_name = st.text_input("Edit Name:", value="Sandeep")
+    # Editable Date
+    selected_date = st.date_input("Edit Date:", value=default_now)
+    
+    display_day = selected_date.strftime("%A")
+    display_date = selected_date.strftime("%d %b %Y")
     st.divider()
-    st.info(f"Today: {auto_day}\n{auto_date}")
+    st.success(f"Updated:\n{display_day}\n{display_date}")
 
-# --- HEADER (Name & Date Added Back) ---
+# --- HEADER (Displaying Edited Name & Date) ---
 st.markdown(f"<h2 style='text-align: center; margin-bottom: 0;'>🏦 Cash Denomination</h2>", unsafe_allow_html=True)
 st.markdown(f"<p class='header-info' style='font-size: 20px; color: black;'>Name: {user_name}</p>", unsafe_allow_html=True)
-st.markdown(f"<p class='header-info' style='font-size: 18px; color: #1b5e20;'>{auto_day} | {auto_date}</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='header-info' style='font-size: 18px; color: #1b5e20;'>{display_day} | {display_date}</p>", unsafe_allow_html=True)
 st.divider()
 
 if 'rid' not in st.session_state:
@@ -77,9 +81,8 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- CALCULATION SECTION (STRICT 5-COLUMN RATIOS) ---
+# --- CALCULATION SECTION (STRICT 5-COLUMN) ---
 for n in notes:
-    # 5-column logic to keep everything in one row
     c1, c2, c3, c4, c5 = st.columns([0.5, 0.2, 0.8, 0.2, 1.5])
     
     with c1:
@@ -125,7 +128,7 @@ st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 16px; 
 
 # --- WHATSAPP SHARE ---
 st.divider()
-whatsapp_msg = f"*Cash Denomination Report*\nName: {user_name}\nDate: {auto_date}\n\n"
+whatsapp_msg = f"*Cash Denomination Report*\nName: {user_name}\nDate: {display_date} ({display_day})\n\n"
 for n in notes:
     if counts[n] > 0:
         whatsapp_msg += f"₹{n:<4} x {counts[n]:<2} = {n*counts[n]:>7}\n"
