@@ -29,14 +29,14 @@ st.markdown("""
         align-items: center !important;
     }
 
-    /* Input Box Styling - Very Small & Tight */
+    /* Input Box Styling - Very Tight */
     div[data-baseweb="input"] {
-        width: 60px !important;
+        width: 65px !important;
         height: 35px !important;
         background-color: white !important;
         border: 1px solid #1b5e20 !important;
         border-radius: 4px !important;
-        margin: 0 4px !important;
+        margin: 0 5px !important;
     }
     input { 
         text-align: center !important; 
@@ -45,21 +45,10 @@ st.markdown("""
         padding: 0px !important;
     }
     
-    .row-text { 
-        font-weight: bold; 
-        font-size: 17px; 
-        margin: 0px !important; 
-        white-space: nowrap; 
-    }
+    .row-text { font-weight: bold; font-size: 17px; margin: 0px !important; white-space: nowrap; }
+    .total-text { font-weight: bold; font-size: 18px; color: #1b5e20; font-family: monospace; text-align: right; width: 100%; }
     
-    .total-text { 
-        font-weight: bold; 
-        font-size: 18px; 
-        color: #1b5e20; 
-        font-family: monospace; 
-        text-align: right; 
-        width: 100%; 
-    }
+    .header-info { text-align: center; font-weight: bold; margin-bottom: 0px; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -75,9 +64,10 @@ with st.sidebar:
     st.divider()
     st.info(f"Today: {auto_day}\n{auto_date}")
 
-# --- HEADER ---
+# --- HEADER (Name & Date Added Back) ---
 st.markdown(f"<h2 style='text-align: center; margin-bottom: 0;'>🏦 Cash Denomination</h2>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; font-size: 18px; font-weight: bold;'>Name: {user_name} | {auto_day}</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='header-info' style='font-size: 20px; color: black;'>Name: {user_name}</p>", unsafe_allow_html=True)
+st.markdown(f"<p class='header-info' style='font-size: 18px; color: #1b5e20;'>{auto_day} | {auto_date}</p>", unsafe_allow_html=True)
 st.divider()
 
 if 'rid' not in st.session_state:
@@ -87,9 +77,9 @@ notes = [2000, 500, 200, 100, 50, 20, 10]
 counts = {}
 totals = []
 
-# --- CALCULATION SECTION (STRICT NO GAP) ---
+# --- CALCULATION SECTION (STRICT 5-COLUMN RATIOS) ---
 for n in notes:
-    # We use very tight column ratios to force them together
+    # 5-column logic to keep everything in one row
     c1, c2, c3, c4, c5 = st.columns([0.5, 0.2, 0.8, 0.2, 1.5])
     
     with c1:
@@ -97,7 +87,7 @@ for n in notes:
     with c2:
         st.markdown(f"<p class='row-text'>x</p>", unsafe_allow_html=True)
     with c3:
-        # number_input helps mobile keyboard "Next" button work
+        # number_input with hidden buttons for 'Next' key support
         count = st.number_input(f"q_{n}", min_value=0, step=1, value=0, key=f"n_{n}_{st.session_state.rid}", label_visibility="collapsed")
         counts[n] = count
     with c4:
@@ -131,7 +121,7 @@ except:
 # --- SUMMARY ---
 st.divider()
 st.markdown(f"<h2 style='text-align: center; color: #1b5e20;'>Total = ₹ {grand_total}</h2>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 16px;'>{words}</p>", unsafe_allow_html=True)
+st.markdown(f"<p style='text-align: center; font-weight: bold; font-size: 16px; color: black;'>{words}</p>", unsafe_allow_html=True)
 
 # --- WHATSAPP SHARE ---
 st.divider()
@@ -151,4 +141,3 @@ st.markdown(f'''<a href="{wa_url}" target="_blank"><button style="width:100%; ba
 if st.button("🔄 Reset / Clear All", use_container_width=True):
     st.session_state.rid += 1
     st.rerun()
-    
